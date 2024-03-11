@@ -12,8 +12,7 @@ public class ChangeArchColour : MonoBehaviour
     void Start()
     {
         _material = GetComponent<Renderer> ().materials[0];
-        ArchColor = new Color(1f, 0.05f * band, 0f);
-        
+        ArchColor = new Color(AudioAnalysis.Instance._bassColour.r - (AudioAnalysis.Instance._bassColour.r - AudioAnalysis.Instance._highsColour.r) * band / AudioAnalysis.bandnumber, AudioAnalysis.Instance._bassColour.g - (AudioAnalysis.Instance._bassColour.g - AudioAnalysis.Instance._highsColour.g) * band / AudioAnalysis.bandnumber, AudioAnalysis.Instance._bassColour.b - (AudioAnalysis.Instance._bassColour.b - AudioAnalysis.Instance._highsColour.b) * band / AudioAnalysis.bandnumber);
     }
 
     // Update is called once per frame

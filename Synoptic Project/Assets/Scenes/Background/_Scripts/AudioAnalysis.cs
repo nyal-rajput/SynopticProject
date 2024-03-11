@@ -6,6 +6,9 @@ using UnityEngine.UI;
 // [RequireComponent (typeof (AudioSource))]
 public class AudioAnalysis : MonoBehaviour
 {
+    public Color _bassColour;
+    public Color _highsColour;
+
     AudioSource _audioSource;
 
     public bool _liveaudio;
@@ -43,6 +46,13 @@ public class AudioAnalysis : MonoBehaviour
 
     private int[] sampleCount = {5, 5, 5, 23, 24, 24, 30, 31, 31, 185, 185, 186, 248, 248, 248, 248, 248, 248, 1986, 1987, 1987};   
     // Start is called before the first frame update
+
+    public static AudioAnalysis Instance;
+    
+    void Awake(){
+        Instance = this;
+    }
+
 
     void Start()
     {
