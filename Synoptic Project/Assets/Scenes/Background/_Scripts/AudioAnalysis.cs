@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent (typeof (AudioSource))]
+// [RequireComponent (typeof (AudioSource))]
 public class AudioAnalysis : MonoBehaviour
 {
     AudioSource _audioSource;
+
+    public bool _liveaudio;
+    public static string _audiodevice;
+    public string[] _availabledevices;
 
     public static int bandnumber = 21;
 
@@ -38,8 +43,11 @@ public class AudioAnalysis : MonoBehaviour
 
     private int[] sampleCount = {5, 5, 5, 23, 24, 24, 30, 31, 31, 185, 185, 186, 248, 248, 248, 248, 248, 248, 1986, 1987, 1987};   
     // Start is called before the first frame update
+
     void Start()
     {
+        _availabledevices = new string[Microphone.devices.Length];
+
         _freqLeftBand = new float[bandnumber];
         _bandLeftbuffer = new float[bandnumber];
         _bufferLeftDecrease = new float[bandnumber];
@@ -74,8 +82,24 @@ public class AudioAnalysis : MonoBehaviour
         * Brilliance 5967 = 16020 hertz (6001 - 22020)
         */     
         // int [] sampleBandCounts = {15, 71, 92, 551, 733, 734, 5881};
-        
+
         _audioSource = GetComponent<AudioSource> ();
+
+        for (int i = 0; i < Microphone.devices.Length; i++) {
+            _availabledevices[i] = Microphone.devices[i].ToString();
+        }
+        
+        if (_liveaudio) {
+            if (Microphone.devices.Length > 0) {
+                _audiodevice = Microphone.devices[0].ToString();
+                _audioSource.clip = Microphone.Start(_audiodevice, true, 100, 22050);
+            }
+            else {
+                _liveaudio = false;
+            }
+            _audioSource.Play();
+        }
+
     }
 
     // Update is called once per frame
