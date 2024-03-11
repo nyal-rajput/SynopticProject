@@ -31,10 +31,10 @@ public class AudioAnalysis : MonoBehaviour
     private float[] _bufferDecreaseVals; 
 
     public static float _LeftAmplitude, _LeftAmplitudeBuffer;
-    private float _LeftAmplitudeHighest;
+    private float _LeftAmplitudeHighest = 0.2f;
 
     public static float _RightAmplitude, _RightAmplitudeBuffer;
-    private float _RightAmplitudeHighest;
+    private float _RightAmplitudeHighest = 0.2f;
 
     private int[] sampleCount = {5, 5, 5, 23, 24, 24, 30, 31, 31, 185, 185, 186, 248, 248, 248, 248, 248, 248, 1986, 1987, 1987};   
     // Start is called before the first frame update
@@ -44,7 +44,7 @@ public class AudioAnalysis : MonoBehaviour
         _bandLeftbuffer = new float[bandnumber];
         _bufferLeftDecrease = new float[bandnumber];
 
-        _freqLeftBandHighest = new float[bandnumber];
+        _freqLeftBandHighest = new float[] {0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f};
         _audioLeftBand = new float[bandnumber];
         _audioLeftBandBuffer = new float[bandnumber];
 
@@ -52,7 +52,7 @@ public class AudioAnalysis : MonoBehaviour
         _bandRightbuffer = new float[bandnumber];
         _bufferRightDecrease = new float[bandnumber];
 
-        _freqRightBandHighest = new float[bandnumber];
+        _freqRightBandHighest = new float[] {0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f};
         _audioRightBand = new float[bandnumber];
         _audioRightBandBuffer = new float[bandnumber];
 
@@ -73,7 +73,7 @@ public class AudioAnalysis : MonoBehaviour
         * Presence: 744 = 1999 hertz (4001 - 6000)
         * Brilliance 5967 = 16020 hertz (6001 - 22020)
         */     
-        int [] sampleBandCounts = {15, 70, 91, 551, 733, 734, 5881};
+        // int [] sampleBandCounts = {15, 71, 92, 551, 733, 734, 5881};
         
         _audioSource = GetComponent<AudioSource> ();
     }

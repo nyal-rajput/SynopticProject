@@ -12,7 +12,7 @@ public class ChangeArchColour : MonoBehaviour
     void Start()
     {
         _material = GetComponent<Renderer> ().materials[0];
-        ArchColor = new Color(1f, 0f + 0.05f * band, 0f);
+        ArchColor = new Color(1f, 0.05f * band, 0f);
         
     }
 
@@ -20,10 +20,10 @@ public class ChangeArchColour : MonoBehaviour
     void Update()
     {
         if (left) {
-            _material.SetColor("_Color", ArchColor * (AudioAnalysis._audioLeftBandBuffer[band] * AudioAnalysis._audioLeftBandBuffer[band] * 3.5f));
+            _material.SetColor("_Color", ArchColor * (AudioAnalysis._audioLeftBandBuffer[band] * AudioAnalysis._audioLeftBandBuffer[band] * 7f));
         }
         else {
-            _material.SetColor("_Color", ArchColor * (AudioAnalysis._audioRightBandBuffer[band] * AudioAnalysis._audioRightBandBuffer[band] * 3.5f));
+            _material.SetColor("_Color", ArchColor * (AudioAnalysis._audioRightBandBuffer[band] * AudioAnalysis._audioRightBandBuffer[band] * 7f));
         }
     }
 }
