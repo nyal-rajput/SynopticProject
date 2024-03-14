@@ -6,8 +6,13 @@ using UnityEngine.UI;
 // [RequireComponent (typeof (AudioSource))]
 public class AudioAnalysis : MonoBehaviour
 {
+    public float time;
+
     public Color _bassColour;
     public Color _highsColour;
+    public Color _nextbassColour;
+    public Color _nexthighsColour;
+    public static Color nextColour;
 
     AudioSource _audioSource;
 
@@ -56,6 +61,8 @@ public class AudioAnalysis : MonoBehaviour
 
     void Start()
     {
+        time = 0f;
+
         _availabledevices = new string[Microphone.devices.Length];
 
         _freqLeftBand = new float[bandnumber];
@@ -124,6 +131,70 @@ public class AudioAnalysis : MonoBehaviour
         CreateRightAudioBands ();
         GetLeftAmplitude ();
         GetRightAmplitude ();
+        GetTime ();
+        UpdateColour();
+    }
+
+    void UpdateColour() {
+        if (_bassColour.r == 1 && _bassColour.g <= 0.01 && _bassColour.b == 0) {
+            _bassColour = new Color (1, 0, 0);
+            _nextbassColour = new Color (1, 0, 1);
+        }
+        else if (_bassColour.r == 1 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
+            _bassColour = new Color (1, 0, 1);
+            _nextbassColour = new Color (0, 0, 1);
+        }
+        else if (_bassColour.r <= 0.01 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
+            _bassColour = new Color (0, 0, 1);
+            _nextbassColour = new Color (0, 1, 1);
+        }       
+        else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b == 1) {
+            _bassColour = new Color (0, 1, 1);
+            _nextbassColour = new Color (0, 1, 0);
+        }   
+        else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
+            _bassColour = new Color (0, 1, 0);
+            _nextbassColour = new Color (1, 1, 0);
+        }   
+        else if (_bassColour.r == 1 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
+            _bassColour = new Color (1, 1, 0);
+            _nextbassColour = new Color (1, 0, 0);
+        }   
+
+        if (_highsColour.r == 1 && _highsColour.g <= 0.01 && _highsColour.b <= 0.01) {
+            _highsColour = new Color (1, 0, 0);
+            _nexthighsColour = new Color (1, 0, 1);
+        }
+        else if (_highsColour.r == 1 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
+            _highsColour = new Color (1, 0, 1);
+            _nexthighsColour = new Color (0, 0, 1);
+        }
+        else if (_highsColour.r <= 0.01 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
+            _highsColour = new Color (0, 0, 1);
+            _nexthighsColour = new Color (0, 1, 1);
+        }       
+        else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b == 1) {
+            _highsColour = new Color (0, 1, 1);
+            _nexthighsColour = new Color (0, 1, 0);
+        }   
+        else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
+            _highsColour = new Color (0, 1, 0);
+            _nexthighsColour = new Color (1, 1, 0);
+        }   
+        else if (_highsColour.r == 1 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
+            _highsColour = new Color (1, 1, 0);
+            _nexthighsColour = new Color (1, 0, 0);
+        }   
+
+        if (time > 60) {
+            _bassColour = _nextbassColour;
+            _highsColour = _nexthighsColour;
+            time = 0;
+        }
+    }
+
+    void GetTime() {
+        time += Time.deltaTime;
     }
 
     void GetLeftAmplitude() {
