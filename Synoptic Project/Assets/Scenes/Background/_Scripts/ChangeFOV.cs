@@ -14,7 +14,7 @@ public class ChangeFOV : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        FOV = 56f + (AudioAnalysis._LeftAmplitudeBuffer + AudioAnalysis._RightAmplitudeBuffer) * 3f;
+        FOV = 56f + (AudioAnalysis._LeftAmplitudeBuffer + AudioAnalysis._RightAmplitudeBuffer) * 2.5f;
         if (FOV > 60) {
             Camera.main.fieldOfView = 60f;
         }

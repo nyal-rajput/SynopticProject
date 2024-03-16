@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 // [RequireComponent (typeof (AudioSource))]
 public class AudioAnalysis : MonoBehaviour
@@ -33,11 +34,11 @@ public class AudioAnalysis : MonoBehaviour
     public static float[] _audioLeftBand;
     public static float[] _audioLeftBandBuffer;
 
-    public float[] _freqRightBand;
+    public static float[] _freqRightBand;
     public static float[] _bandRightbuffer;
     private float[] _bufferRightDecrease;
 
-    private float[] _freqRightBandHighest;
+    public float[] _freqRightBandHighest;
     public static float[] _audioRightBand;
     public static float[] _audioRightBandBuffer;
 
@@ -69,7 +70,7 @@ public class AudioAnalysis : MonoBehaviour
         _bandLeftbuffer = new float[bandnumber];
         _bufferLeftDecrease = new float[bandnumber];
 
-        _freqLeftBandHighest = new float[] {0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f};
+        _freqLeftBandHighest = new float[] {0.3f, 2f, 2.8f, 2f, 1.9f, 1.9f, 1.7f, 2.3f, 3.3f, 2f, 3.2f, 3.5f, 4.4f, 5.2f, 6.1f, 5.4f, 6.4f, 6.8f, 7.4f, 5.8f, 1.9f};
         _audioLeftBand = new float[bandnumber];
         _audioLeftBandBuffer = new float[bandnumber];
 
@@ -77,7 +78,7 @@ public class AudioAnalysis : MonoBehaviour
         _bandRightbuffer = new float[bandnumber];
         _bufferRightDecrease = new float[bandnumber];
 
-        _freqRightBandHighest = new float[] {0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.2f};
+        _freqRightBandHighest = new float[] {0.3f, 2f, 2.8f, 2f, 1.9f, 1.9f, 1.7f, 2.3f, 3.3f, 2f, 3.2f, 3.5f, 4.4f, 5.2f, 6.1f, 5.4f, 6.4f, 6.8f, 7.4f, 5.8f, 1.9f};
         _audioRightBand = new float[bandnumber];
         _audioRightBandBuffer = new float[bandnumber];
 
@@ -142,20 +143,20 @@ public class AudioAnalysis : MonoBehaviour
         }
         else if (_bassColour.r == 1 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
             _bassColour = new Color (1, 0, 1);
-            _nextbassColour = new Color (0, 0, 1);
-        }
-        else if (_bassColour.r <= 0.01 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
-            _bassColour = new Color (0, 0, 1);
             _nextbassColour = new Color (0, 1, 1);
-        }       
+        }
+        // else if (_bassColour.r <= 0.01 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
+        //     _bassColour = new Color (0, 0, 1);
+        //     _nextbassColour = new Color (0, 1, 1);
+        // }       
         else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b == 1) {
             _bassColour = new Color (0, 1, 1);
-            _nextbassColour = new Color (0, 1, 0);
-        }   
-        else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
-            _bassColour = new Color (0, 1, 0);
             _nextbassColour = new Color (1, 1, 0);
         }   
+        // else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
+        //     _bassColour = new Color (0, 1, 0);
+        //     _nextbassColour = new Color (1, 1, 0);
+        // }   
         else if (_bassColour.r == 1 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
             _bassColour = new Color (1, 1, 0);
             _nextbassColour = new Color (1, 0, 0);
@@ -167,20 +168,20 @@ public class AudioAnalysis : MonoBehaviour
         }
         else if (_highsColour.r == 1 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
             _highsColour = new Color (1, 0, 1);
-            _nexthighsColour = new Color (0, 0, 1);
-        }
-        else if (_highsColour.r <= 0.01 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
-            _highsColour = new Color (0, 0, 1);
             _nexthighsColour = new Color (0, 1, 1);
-        }       
+        }
+        // else if (_highsColour.r <= 0.01 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
+        //     _highsColour = new Color (0, 0, 1);
+        //     _nexthighsColour = new Color (0, 1, 1);
+        // }       
         else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b == 1) {
             _highsColour = new Color (0, 1, 1);
-            _nexthighsColour = new Color (0, 1, 0);
-        }   
-        else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
-            _highsColour = new Color (0, 1, 0);
             _nexthighsColour = new Color (1, 1, 0);
         }   
+        // else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
+        //     _highsColour = new Color (0, 1, 0);
+        //     _nexthighsColour = new Color (1, 1, 0);
+        // }   
         else if (_highsColour.r == 1 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
             _highsColour = new Color (1, 1, 0);
             _nexthighsColour = new Color (1, 0, 0);
@@ -191,6 +192,10 @@ public class AudioAnalysis : MonoBehaviour
             _highsColour = _nexthighsColour;
             time = 0;
         }
+    }
+
+    public float sigmoidfunct (float y, float a) {
+        return 1.0f / (1.0f + (float) Math.Exp(- (8 / a) * (y - a / 2)));
     }
 
     void GetTime() {
@@ -231,7 +236,8 @@ public class AudioAnalysis : MonoBehaviour
                 _freqLeftBandHighest[i] = _freqLeftBand[i];
             }
             _audioLeftBand[i] = _freqLeftBand[i] / _freqLeftBandHighest[i];
-            _audioLeftBandBuffer[i] = _bandLeftbuffer[i] / _freqLeftBandHighest[i];
+            // _audioLeftBandBuffer[i] = _bandLeftbuffer[i] / _freqLeftBandHighest[i];
+            _audioLeftBandBuffer[i] = sigmoidfunct(_bandLeftbuffer[i], _freqLeftBandHighest[i]);
         }
     }
 
@@ -241,7 +247,8 @@ public class AudioAnalysis : MonoBehaviour
                 _freqRightBandHighest[i] = _freqRightBand[i];
             }
             _audioRightBand[i] = _freqRightBand[i] / _freqRightBandHighest[i];
-            _audioRightBandBuffer[i] = _bandRightbuffer[i] / _freqRightBandHighest[i];
+            // _audioRightBandBuffer[i] = _bandRightbuffer[i] / _freqRightBandHighest[i];
+            _audioRightBandBuffer[i] = sigmoidfunct(_bandRightbuffer[i], _freqRightBandHighest[i]);
         }
     }
 

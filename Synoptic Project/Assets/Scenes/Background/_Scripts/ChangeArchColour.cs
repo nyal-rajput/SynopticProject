@@ -24,10 +24,12 @@ public class ChangeArchColour : MonoBehaviour
         nextArchColor = new Color(AudioAnalysis.Instance._nextbassColour.r - (AudioAnalysis.Instance._nextbassColour.r - AudioAnalysis.Instance._nexthighsColour.r) * (band + 1) / AudioAnalysis.bandnumber, AudioAnalysis.Instance._nextbassColour.g - (AudioAnalysis.Instance._nextbassColour.g - AudioAnalysis.Instance._nexthighsColour.g) * (band + 1) / AudioAnalysis.bandnumber, AudioAnalysis.Instance._nextbassColour.b - (AudioAnalysis.Instance._nextbassColour.b - AudioAnalysis.Instance._nexthighsColour.b) * (band + 1) / AudioAnalysis.bandnumber);    
         newArchColor = new Color(ArchColor.r - (ArchColor.r - nextArchColor.r) * AudioAnalysis.Instance.time / 60, ArchColor.g - (ArchColor.g - nextArchColor.g) * AudioAnalysis.Instance.time / 60, ArchColor.b - (ArchColor.b - nextArchColor.b) * AudioAnalysis.Instance.time / 60);
         if (left) {
-            _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioLeftBandBuffer[band], 1.8) * 25f);
+            // _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioLeftBandBuffer[band], 2) * 32f);
+            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioLeftBandBuffer[band] * 30f);
         }
         else {
-            _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioRightBandBuffer[band], 1.8) * 25f);
+            // _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioRightBandBuffer[band], 2) * 32f);
+            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioRightBandBuffer[band] * 30f);
         }
     }
 }
