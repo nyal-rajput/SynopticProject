@@ -25,11 +25,11 @@ public class ChangeArchColour : MonoBehaviour
         newArchColor = new Color(ArchColor.r - (ArchColor.r - nextArchColor.r) * AudioAnalysis.Instance.time / 60, ArchColor.g - (ArchColor.g - nextArchColor.g) * AudioAnalysis.Instance.time / 60, ArchColor.b - (ArchColor.b - nextArchColor.b) * AudioAnalysis.Instance.time / 60);
         if (left) {
             // _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioLeftBandBuffer[band], 2) * 32f);
-            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioLeftBandBuffer[band] * 30f);
+            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioLeftBandBuffer[band] * 20f);
         }
         else {
             // _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioRightBandBuffer[band], 2) * 32f);
-            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioRightBandBuffer[band] * 30f);
+            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioRightBandBuffer[band] * 20f);
         }
     }
 }

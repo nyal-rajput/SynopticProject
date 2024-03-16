@@ -213,7 +213,8 @@ public class AudioAnalysis : MonoBehaviour
             _LeftAmplitudeHighest = _CurrentLeftAmplitude;
         }
         _LeftAmplitude = _CurrentLeftAmplitude / _LeftAmplitudeHighest;
-        _LeftAmplitudeBuffer = _CurrentLeftAmplitudeBuffer / _LeftAmplitudeHighest;
+        // _LeftAmplitudeBuffer = _CurrentLeftAmplitudeBuffer / _LeftAmplitudeHighest;
+        _LeftAmplitudeBuffer = sigmoidfunct(_CurrentLeftAmplitudeBuffer, _LeftAmplitudeHighest);
     } 
 
     void GetRightAmplitude() {
@@ -227,7 +228,8 @@ public class AudioAnalysis : MonoBehaviour
             _RightAmplitudeHighest = _CurrentRightAmplitude;
         }
         _RightAmplitude = _CurrentRightAmplitude / _RightAmplitudeHighest;
-        _RightAmplitudeBuffer = _CurrentRightAmplitudeBuffer / _RightAmplitudeHighest;
+        // _RightAmplitudeBuffer = _CurrentRightAmplitudeBuffer / _RightAmplitudeHighest;
+        _RightAmplitudeBuffer = sigmoidfunct(_CurrentRightAmplitude, _RightAmplitudeHighest);
     } 
 
     void CreateLeftAudioBands() {
