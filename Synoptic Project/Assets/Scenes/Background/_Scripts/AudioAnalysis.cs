@@ -30,7 +30,7 @@ public class AudioAnalysis : MonoBehaviour
     public static float[] _bandLeftbuffer;
     private float[] _bufferLeftDecrease;
 
-    private float[] _freqLeftBandHighest;
+    public float[] _freqLeftBandHighest;
     public static float[] _audioLeftBand;
     public static float[] _audioLeftBandBuffer;
 
@@ -38,7 +38,7 @@ public class AudioAnalysis : MonoBehaviour
     public static float[] _bandRightbuffer;
     private float[] _bufferRightDecrease;
 
-    public float[] _freqRightBandHighest;
+    public static float[] _freqRightBandHighest;
     public static float[] _audioRightBand;
     public static float[] _audioRightBandBuffer;
 
@@ -59,7 +59,6 @@ public class AudioAnalysis : MonoBehaviour
         Instance = this;
     }
 
-
     void Start()
     {
         time = 0f;
@@ -70,7 +69,7 @@ public class AudioAnalysis : MonoBehaviour
         _bandLeftbuffer = new float[bandnumber];
         _bufferLeftDecrease = new float[bandnumber];
 
-        _freqLeftBandHighest = new float[] {0.3f, 2f, 2.8f, 2f, 1.9f, 1.9f, 1.7f, 2.3f, 3.3f, 2f, 3.2f, 3.5f, 4.4f, 5.2f, 6.1f, 5.4f, 6.4f, 6.8f, 7.4f, 5.8f, 1.9f};
+        _freqLeftBandHighest = new float[] {0.1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 0.5f};
         _audioLeftBand = new float[bandnumber];
         _audioLeftBandBuffer = new float[bandnumber];
 
@@ -78,7 +77,7 @@ public class AudioAnalysis : MonoBehaviour
         _bandRightbuffer = new float[bandnumber];
         _bufferRightDecrease = new float[bandnumber];
 
-        _freqRightBandHighest = new float[] {0.3f, 2f, 2.8f, 2f, 1.9f, 1.9f, 1.7f, 2.3f, 3.3f, 2f, 3.2f, 3.5f, 4.4f, 5.2f, 6.1f, 5.4f, 6.4f, 6.8f, 7.4f, 5.8f, 1.9f};
+        _freqRightBandHighest = new float[] {0.1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 0.5f};
         _audioRightBand = new float[bandnumber];
         _audioRightBandBuffer = new float[bandnumber];
 
