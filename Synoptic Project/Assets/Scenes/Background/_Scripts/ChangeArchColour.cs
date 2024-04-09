@@ -26,12 +26,12 @@ public class ChangeArchColour : MonoBehaviour
         if (left) {
             // _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioLeftBandBuffer[band], 2) * 32f);
             // _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioLeftBandBuffer[band] * 20f / (AudioAnalysis._LeftAmplitudeBuffer * 5));
-            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioLeftBandBuffer[band] * 20f);
+            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._bandLeftbuffer[band] * 20f);
         }
         else {
             // _material.SetColor("_Color", newArchColor * (float)Math.Pow(AudioAnalysis._audioRightBandBuffer[band], 2) * 32f);
             // _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioRightBandBuffer[band] * 20f / (AudioAnalysis._RightAmplitudeBuffer * 5));
-            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._audioRightBandBuffer[band] * 20f);
+            _material.SetColor("_Color", newArchColor * (float)AudioAnalysis._bandRightbuffer[band] * 20f);
         
         }
     }

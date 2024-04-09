@@ -54,6 +54,10 @@ public class AudioAnalysis : MonoBehaviour
     // Start is called before the first frame update
 
     public static AudioAnalysis Instance;
+
+    public float sigmoidfunct (float y, float a) {
+        return 1.0f / (1.0f + (float) Math.Exp(- (9 / a) * (y - a / 2)));
+    }
     
     void Awake(){
         Instance = this;
@@ -83,7 +87,7 @@ public class AudioAnalysis : MonoBehaviour
 
         _bufferDecreaseVals = new float[bandnumber];
         for (int i = 0; i < bandnumber; i++) {
-            _bufferDecreaseVals[i] = 0.15f / (bandnumber - i);
+            _bufferDecreaseVals[i] = 0.9f - 0.4f / (bandnumber - i);
         }
 
         /*
@@ -122,18 +126,151 @@ public class AudioAnalysis : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        GetTime ();
         GetSpectrumAudioSource ();
+        CreateLeftAudioBands ();
+        CreateRightAudioBands ();
         MakeFrequencyLeftBands ();
         MakeFrequencyRightBands ();
         BandLeftBuffer ();
         BandRightBuffer ();
-        CreateLeftAudioBands ();
-        CreateRightAudioBands ();
         GetLeftAmplitude ();
         GetRightAmplitude ();
-        GetTime ();
         UpdateColour();
     }
+
+    void GetTime() {
+        time += Time.deltaTime;
+    }
+
+        void GetSpectrumAudioSource()
+    {
+        _audioSource.GetSpectrumData(_samplesLeft, 0, FFTWindow.Blackman);
+        _audioSource.GetSpectrumData(_samplesRight, 1, FFTWindow.Blackman);
+    }
+
+    void MakeFrequencyLeftBands() {
+        int count = 6;
+        float average;
+        int bandcount;
+
+        for (int i = 0; i < bandnumber; i++) {
+            average = 0;
+            bandcount = 0;
+
+            for (int j = 0; j < sampleCount[i]; j++) {
+                average += (_samplesLeft[count]) * (count + 1); //In Unity higher frequencies have exponentially smaller values, by multiplying by  count, it offsets the smaller numbers that come with high frequencies. Making the output for the _freqBand more normal.
+                count++;
+                bandcount++;
+            }
+
+            average = average / bandcount;
+
+            _freqLeftBand[i] = average * 10;
+        }
+    }
+
+    void MakeFrequencyRightBands() {
+        int count = 6;
+        float average;
+        int bandcount;
+
+        for (int i = 0; i < bandnumber; i++) {
+            average = 0;
+            bandcount = 0;
+
+            for (int j = 0; j < sampleCount[i]; j++) {
+                average += (_samplesRight[count]) * (count + 1); //In Unity higher frequencies have exponentially smaller values, by multiplying by  count, it offsets the smaller numbers that come with high frequencies. Making the output for the _freqBand more normal.
+                count++;
+                bandcount++;
+            }
+            average = average / bandcount;
+            
+
+            _freqRightBand[i] = average * 10;
+        }
+    }
+
+    void CreateLeftAudioBands() {
+        for (int i = 0; i < bandnumber; i++) {
+            if (_freqLeftBand[i] > _freqLeftBandHighest[i]) {
+                _freqLeftBandHighest[i] = _freqLeftBand[i];
+            }
+            // _audioLeftBand[i] = _freqLeftBand[i] / _freqLeftBandHighest[i];
+            // _audioLeftBandBuffer[i] = sigmoidfunct(_bandLeftbuffer[i], _freqLeftBandHighest[i]);
+            _audioLeftBand[i] = sigmoidfunct(_freqLeftBand[i], _freqLeftBandHighest[i]);
+        }
+    }
+
+    void CreateRightAudioBands() {
+        for (int i = 0; i < bandnumber; i++) {
+            if (_freqRightBand[i] > _freqRightBandHighest[i]) {
+                _freqRightBandHighest[i] = _freqRightBand[i];
+            }
+            // _audioRightBand[i] = _freqRightBand[i] / _freqRightBandHighest[i];
+            // _audioRightBandBuffer[i] = sigmoidfunct(_bandRightbuffer[i], _freqRightBandHighest[i]);
+            _audioRightBand[i] = sigmoidfunct(_freqRightBand[i], _freqRightBandHighest[i]);
+
+        }
+    }
+
+    void BandLeftBuffer() {
+        for (int i = 0; i < bandnumber; i++) {
+            if (_audioLeftBand[i] > _bandLeftbuffer[i]) {
+                _bandLeftbuffer[i] = _audioLeftBand[i];
+                // _bufferLeftDecrease[i] = _bufferDecreaseVals[i];
+            }
+            else {
+                // _bandLeftbuffer[i] *= _bufferLeftDecrease[i];
+                // _bufferLeftDecrease[i] *= 1.2f;
+                _bandLeftbuffer[i] *= _bufferDecreaseVals[i];
+            }
+        }
+    }
+
+    void BandRightBuffer() {
+        for (int i = 0; i < bandnumber; i++) {
+            if (_audioRightBand[i] > _bandRightbuffer[i]) {
+                _bandRightbuffer[i] = _audioRightBand[i];
+                // _bufferRightDecrease[i] = _bufferDecreaseVals[i];
+            }
+            if (_audioRightBand[i] < _bandRightbuffer[i]) {
+                // _bandRightbuffer[i] *= _bufferRightDecrease[i];
+                // _bufferRightDecrease[i] *= 1.2f;
+                _bandRightbuffer[i] *= _bufferDecreaseVals[i];
+            }
+        }
+    }
+
+    void GetLeftAmplitude() {
+        float _CurrentLeftAmplitude = 0;
+        // float _CurrentLeftAmplitudeBuffer = 0;
+        for (int i = 0; i < bandnumber; i++) {
+            _CurrentLeftAmplitude += _bandLeftbuffer[i];
+            // _CurrentLeftAmplitudeBuffer += _bandLeftbuffer[i];
+        }
+        if (_CurrentLeftAmplitude > _LeftAmplitudeHighest) {
+            _LeftAmplitudeHighest = _CurrentLeftAmplitude;
+        }
+        // _LeftAmplitude = _CurrentLeftAmplitude / _LeftAmplitudeHighest;
+        // _LeftAmplitudeBuffer = _CurrentLeftAmplitudeBuffer / _LeftAmplitudeHighest;
+        _LeftAmplitude = sigmoidfunct(_CurrentLeftAmplitude, _LeftAmplitudeHighest);
+    } 
+
+    void GetRightAmplitude() {
+        float _CurrentRightAmplitude = 0;
+        // float _CurrentRightAmplitudeBuffer = 0;
+        for (int i = 0; i < bandnumber; i++) {
+            _CurrentRightAmplitude += _bandRightbuffer[i];
+            // _CurrentRightAmplitudeBuffer += _bandRightbuffer[i];
+        }
+        if (_CurrentRightAmplitude > _RightAmplitudeHighest) {
+            _RightAmplitudeHighest = _CurrentRightAmplitude;
+        }
+        // _RightAmplitude = _CurrentRightAmplitude / _RightAmplitudeHighest;
+        // _RightAmplitudeBuffer = _CurrentRightAmplitudeBuffer / _RightAmplitudeHighest;
+        _RightAmplitude = sigmoidfunct(_CurrentRightAmplitude, _RightAmplitudeHighest);
+    } 
 
     void UpdateColour() {
         if (_bassColour.r == 1 && _bassColour.g <= 0.01 && _bassColour.b == 0) {
@@ -190,140 +327,6 @@ public class AudioAnalysis : MonoBehaviour
             _bassColour = _nextbassColour;
             _highsColour = _nexthighsColour;
             time = 0;
-        }
-    }
-
-    public float sigmoidfunct (float y, float a) {
-        return 1.0f / (1.0f + (float) Math.Exp(- (8 / a) * (y - a / 2)));
-    }
-
-    void GetTime() {
-        time += Time.deltaTime;
-    }
-
-    void GetLeftAmplitude() {
-        float _CurrentLeftAmplitude = 0;
-        float _CurrentLeftAmplitudeBuffer = 0;
-        for (int i = 0; i < bandnumber; i++) {
-            _CurrentLeftAmplitude += _audioLeftBand[i];
-            _CurrentLeftAmplitudeBuffer += _audioLeftBandBuffer[i];
-        }
-        if (_CurrentLeftAmplitude > _LeftAmplitudeHighest) {
-            _LeftAmplitudeHighest = _CurrentLeftAmplitude;
-        }
-        _LeftAmplitude = _CurrentLeftAmplitude / _LeftAmplitudeHighest;
-        // _LeftAmplitudeBuffer = _CurrentLeftAmplitudeBuffer / _LeftAmplitudeHighest;
-        _LeftAmplitudeBuffer = sigmoidfunct(_CurrentLeftAmplitudeBuffer, _LeftAmplitudeHighest);
-    } 
-
-    void GetRightAmplitude() {
-        float _CurrentRightAmplitude = 0;
-        float _CurrentRightAmplitudeBuffer = 0;
-        for (int i = 0; i < bandnumber; i++) {
-            _CurrentRightAmplitude += _audioRightBand[i];
-            _CurrentRightAmplitudeBuffer += _audioRightBandBuffer[i];
-        }
-        if (_CurrentRightAmplitude > _RightAmplitudeHighest) {
-            _RightAmplitudeHighest = _CurrentRightAmplitude;
-        }
-        _RightAmplitude = _CurrentRightAmplitude / _RightAmplitudeHighest;
-        // _RightAmplitudeBuffer = _CurrentRightAmplitudeBuffer / _RightAmplitudeHighest;
-        _RightAmplitudeBuffer = sigmoidfunct(_CurrentRightAmplitude, _RightAmplitudeHighest);
-    } 
-
-    void CreateLeftAudioBands() {
-        for (int i = 0; i < bandnumber; i++) {
-            if (_freqLeftBand[i] > _freqLeftBandHighest[i]) {
-                _freqLeftBandHighest[i] = _freqLeftBand[i];
-            }
-            _audioLeftBand[i] = _freqLeftBand[i] / _freqLeftBandHighest[i];
-            // _audioLeftBandBuffer[i] = _bandLeftbuffer[i] / _freqLeftBandHighest[i];
-            _audioLeftBandBuffer[i] = sigmoidfunct(_bandLeftbuffer[i], _freqLeftBandHighest[i]);
-        }
-    }
-
-    void CreateRightAudioBands() {
-        for (int i = 0; i < bandnumber; i++) {
-            if (_freqRightBand[i] > _freqRightBandHighest[i]) {
-                _freqRightBandHighest[i] = _freqRightBand[i];
-            }
-            _audioRightBand[i] = _freqRightBand[i] / _freqRightBandHighest[i];
-            // _audioRightBandBuffer[i] = _bandRightbuffer[i] / _freqRightBandHighest[i];
-            _audioRightBandBuffer[i] = sigmoidfunct(_bandRightbuffer[i], _freqRightBandHighest[i]);
-        }
-    }
-
-    void GetSpectrumAudioSource()
-    {
-        _audioSource.GetSpectrumData(_samplesLeft, 0, FFTWindow.Blackman);
-        _audioSource.GetSpectrumData(_samplesRight, 1, FFTWindow.Blackman);
-    }
-
-    void BandLeftBuffer() {
-        for (int i = 0; i < bandnumber; i++) {
-            if (_freqLeftBand[i] > _bandLeftbuffer[i]) {
-                _bandLeftbuffer[i] = _freqLeftBand[i];
-                _bufferLeftDecrease[i] = _bufferDecreaseVals[i];
-            }
-            if (_freqLeftBand[i] < _bandLeftbuffer[i]) {
-                _bandLeftbuffer[i] -= _bufferLeftDecrease[i];
-                _bufferLeftDecrease[i] *= 1.2f;
-            }
-        }
-    }
-
-    void BandRightBuffer() {
-        for (int i = 0; i < bandnumber; i++) {
-            if (_freqRightBand[i] > _bandRightbuffer[i]) {
-                _bandRightbuffer[i] = _freqRightBand[i];
-                _bufferRightDecrease[i] = _bufferDecreaseVals[i];
-            }
-            if (_freqRightBand[i] < _bandRightbuffer[i]) {
-                _bandRightbuffer[i] -= _bufferRightDecrease[i];
-                _bufferRightDecrease[i] *= 1.2f;
-            }
-        }
-    }
-
-    void MakeFrequencyLeftBands() {
-        int count = 6;
-        float average;
-        int bandcount;
-
-        for (int i = 0; i < bandnumber; i++) {
-            average = 0;
-            bandcount = 0;
-
-            for (int j = 0; j < sampleCount[i]; j++) {
-                average += (_samplesLeft[count]) * (count + 1); //In Unity higher frequencies have exponentially smaller values, by multiplying by  count, it offsets the smaller numbers that come with high frequencies. Making the output for the _freqBand more normal.
-                count++;
-                bandcount++;
-            }
-
-            average = average / bandcount;
-
-            _freqLeftBand[i] = average * 10;
-        }
-    }
-
-    void MakeFrequencyRightBands() {
-        int count = 6;
-        float average;
-        int bandcount;
-
-        for (int i = 0; i < bandnumber; i++) {
-            average = 0;
-            bandcount = 0;
-
-            for (int j = 0; j < sampleCount[i]; j++) {
-                average += (_samplesRight[count]) * (count + 1); //In Unity higher frequencies have exponentially smaller values, by multiplying by  count, it offsets the smaller numbers that come with high frequencies. Making the output for the _freqBand more normal.
-                count++;
-                bandcount++;
-            }
-            average = average / bandcount;
-            
-
-            _freqRightBand[i] = average * 10;
         }
     }
 }
