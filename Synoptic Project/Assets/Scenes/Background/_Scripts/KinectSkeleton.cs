@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Microsoft.Azure.Kinect.Sensor;
 using Microsoft.Azure.Kinect.BodyTracking;
+using System;
 
 public class SkeletonGameObject {
     public GameObject root;
@@ -20,16 +21,12 @@ public class KinectSkeleton : MonoBehaviour {
     const float timeSkeletonCanBeDeactiveBeforeDelete = 3;
     const float maxDistanceToAssumeSamePersonReentry = 2;
 
-    
-
-
     void Awake () {
         kinectController = FindObjectOfType<KinectController> ();
         if (kinectController == null) {
             print ("requires a kinect controller");
             return;
         }
-        GameObject avatar = GameObject.Find("/Avatar1");
     }
 
     /*
@@ -46,8 +43,8 @@ public class KinectSkeleton : MonoBehaviour {
         // Queue the expired skeletons for deletion - user probably walked away
         foreach (SkeletonGameObject skeleton in skeletons) {
             if (Time.time > skeleton.lastUpdateTime + timeSkeletonCanBeDeactiveBeforeDelete) {
-                print ("deleting skeleton " + skeleton.root.name);
-                toDelete.Add (skeleton);
+                print("deleting skeleton " + skeleton.root.name);
+                toDelete.Add(skeleton);
             }
         }
 
@@ -58,9 +55,7 @@ public class KinectSkeleton : MonoBehaviour {
         }
         toDelete.Clear ();
 
-        
-
-        lock (kinectController.m_bufferLock) { 
+        lock (kinectController.m_bufferLock) {
             List<SkeletonInfo> skeles = kinectController.m_currentSkeletons;
             foreach(SkeletonInfo sk in skeles) {
           
@@ -68,10 +63,12 @@ public class KinectSkeleton : MonoBehaviour {
 
                 // Check if skeleton already exists with same ID
                 SkeletonGameObject existingSkeleton = skeletons.FirstOrDefault (skeleton => skeleton.root?.name == bodyId.ToString ());
+                SkeletonGameObject existingextraSkeleton = skeletons.FirstOrDefault(skeleton => skeleton.root?.name == bodyId.ToString() + "extra");
 
                 // Recognises this skeleton
                 if (existingSkeleton != null) {
                     ApplyJointDataToSkeleton (sk.skeleton, existingSkeleton);
+                    ApplyExtraJointDataToSkeleton (sk.skeleton, existingextraSkeleton, existingSkeleton);
                 } else { // Unidentified skeleton
                     // Is there a recently disappeared one that was close to this new one? ie the same person?
                     foreach (SkeletonGameObject skeleton in skeletons) {
@@ -87,6 +84,7 @@ public class KinectSkeleton : MonoBehaviour {
                     }
                     // Else it must really be a new person
                     CreateDebugSkeletons (bodyId.ToString ());
+                    CreateExtraSkeletons(bodyId.ToString() + "extra");
                 }
             }
         }
@@ -94,16 +92,6 @@ public class KinectSkeleton : MonoBehaviour {
 
     void ApplyJointDataToSkeleton (Skeleton skeletonData, SkeletonGameObject realSkeleton) {
         // Do joint moves
-        //Debug.Log((int)JointId.Count);32
-        var pelvisAngle = new Quaternion();
-        var spinenavelAngle = new Quaternion();
-        var spinechestAngle = new Quaternion();
-        var neckAngle = new Quaternion();
-        var leftclavicleAngle = new Quaternion();
-        var leftshoulderAngle = new Quaternion();
-        var leftelbowAngle = new Quaternion();
-        var lefthandAngle = new Quaternion();
-
         for (var i = 0; i <(int)JointId.Count; i++) {
             var joint = skeletonData.GetJoint(i);
             var pos = joint.Position;
@@ -112,179 +100,61 @@ public class KinectSkeleton : MonoBehaviour {
             var r = new Quaternion (rot.X, rot.Y, rot.Z, rot.W);
             realSkeleton.children[i].transform.localPosition = v;
             realSkeleton.children[i].transform.localRotation = r;
-
-            if (i == 0)
-            {
-                GameObject pelvis = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips");
-                pelvis.transform.localPosition = v;
-                Quaternion r2 = Quaternion.identity;
-                r2.eulerAngles = new Vector3(90, -90, 0);
-                pelvis.transform.localRotation = r * r2;
-
-                pelvisAngle = r * r2;
-            }
-            else if (i == 1)
-            {
-                GameObject spinenavel = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1");
-                Quaternion r3 = Quaternion.identity;
-                r3.eulerAngles = new Vector3(90, -90, 0) - pelvisAngle.eulerAngles;
-                spinenavel.transform.localRotation = Quaternion.identity;
-                spinenavel.transform.localRotation = r * r3;
-
-                spinenavelAngle = r * r3;
-            }
-            else if (i == 2)
-            {
-                GameObject spinechest = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2");
-                Quaternion r4 = Quaternion.identity;
-                r4.eulerAngles = new Vector3(90, -90, 0) - spinenavelAngle.eulerAngles;
-                spinechest.transform.localRotation = Quaternion.identity;
-                spinechest.transform.localRotation = r * r4;
-
-                spinechestAngle = r * r4;
-            }
-            else if (i == 3)
-            {
-                GameObject Neck = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_Neck");
-                Quaternion r5 = Quaternion.identity;
-                r5.eulerAngles = new Vector3(90, -90, 0) - spinechestAngle.eulerAngles;
-                Neck.transform.localRotation = Quaternion.identity;
-                Neck.transform.localRotation = r * r5;
-
-                neckAngle = r * r5;
-            }
-            else if (i == 4)
-            {
-                GameObject ClavicleLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder");
-                Quaternion r6 = Quaternion.identity;
-                r6.eulerAngles = new Vector3(90, 0, 0) - spinechestAngle.eulerAngles;
-                ClavicleLeft.transform.localRotation = Quaternion.identity;
-                ClavicleLeft.transform.localRotation = r * r6;
-
-                leftclavicleAngle = r * r6;
-            }
-            else if (i == 5)
-            {
-                GameObject ShoulderLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder/Character1_LeftArm");
-                Quaternion r7 = Quaternion.identity;
-                r7.eulerAngles = new Vector3(90, 0, 0) - leftclavicleAngle.eulerAngles;
-                ShoulderLeft.transform.localRotation = Quaternion.identity;
-                ShoulderLeft.transform.localRotation = r * r7;
-
-                leftshoulderAngle = r * r7;
-            }
-            else if (i == 6)
-            {
-                GameObject ElbowLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder/Character1_LeftArm/Character1_LeftForeArm");
-                Quaternion r8 = Quaternion.identity;
-                r8.eulerAngles = new Vector3(90, 0, 0) - leftshoulderAngle.eulerAngles;
-                ElbowLeft.transform.localRotation = Quaternion.identity;
-                ElbowLeft.transform.localRotation = r * r8;
-
-                leftelbowAngle = r * r8;
-            }
-            else if (i == 7)
-            {
-                GameObject WristLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_LeftShoulder/Character1_LeftArm/Character1_LeftForeArm/Character1_LeftHand");
-                Quaternion r9 = Quaternion.identity;
-                r9.eulerAngles = new Vector3(-90, 0, 0) - leftshoulderAngle.eulerAngles;
-                WristLeft.transform.localRotation = Quaternion.identity;
-                WristLeft.transform.localRotation = r * r9;
-            }
-            //else if (i == 11)
-            //{
-            //    GameObject ClavicleRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder");
-            //    Quaternion r13 = Quaternion.identity;
-            //    r13.eulerAngles = new Vector3(-90, 0, 0);
-            //    ClavicleRight.transform.localRotation = r * r13;
-            //}
-            //else if (i == 12)
-            //{
-            //    GameObject ShoulderRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder/Character1_RightArm");
-            //    Quaternion r14 = Quaternion.identity;
-            //    r14.eulerAngles = new Vector3(-90, 0, 0);
-            //    ShoulderRight.transform.localRotation = r * r14;
-            //}
-            //else if (i == 13)
-            //{
-            //    GameObject ElbowRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder/Character1_RightArm/Character1_RightForeArm");
-            //    Quaternion r15 = Quaternion.identity;
-            //    r15.eulerAngles = new Vector3(-90, 0, 0);
-            //    ElbowRight.transform.localRotation = r * r15;
-            //}
-            //else if (i == 14)
-            //{
-            //    GameObject WristRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_RightShoulder/Character1_RightArm/Character1_RightForeArm/Character1_RightHand");
-            //    Quaternion r16 = Quaternion.identity;
-            //    r16.eulerAngles = new Vector3(90, 0, 0);
-            //    WristRight.transform.localRotation = r * r16;
-            //}
-            //else if (i == 18)
-            //{
-            //    GameObject HipLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_LeftUpLeg");
-            //    Quaternion r20 = Quaternion.identity;
-            //    r20.eulerAngles = new Vector3(90, -90, 0);
-            //    HipLeft.transform.localRotation = r * r20;
-            //}
-            //else if (i == 19)
-            //{
-            //    GameObject KneeLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_LeftUpLeg/Character1_LeftLeg");
-            //    Quaternion r21 = Quaternion.identity;
-            //    r21.eulerAngles = new Vector3(90, -90, 0);
-            //    KneeLeft.transform.localRotation = r * r21;
-            //}
-            //else if (i == 20)
-            //{
-            //    GameObject AnkleLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_LeftUpLeg/Character1_LeftLeg/Character1_LeftFoot");
-            //    Quaternion r22 = Quaternion.identity;
-            //    r22.eulerAngles = new Vector3(90, -90, 0);
-            //    AnkleLeft.transform.localRotation = r * r22;
-            //}
-            //else if (i == 21)
-            //{
-            //    GameObject FootLeft = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_LeftUpLeg/Character1_LeftLeg/Character1_LeftFoot/Character1_LeftToeBase");
-            //    Quaternion r23 = Quaternion.identity;
-            //    r23.eulerAngles = new Vector3(90, -90, 0);
-            //    FootLeft.transform.localRotation = r * r23;
-            //}
-            //else if (i == 22)
-            //{
-            //    GameObject HipRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_RightUpLeg");
-            //    Quaternion r24 = Quaternion.identity;
-            //    r24.eulerAngles = new Vector3(-90, -90, 0);
-            //    HipRight.transform.localRotation = r * r24;
-            //}
-            //else if (i == 23)
-            //{
-            //    GameObject KneeRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_RightUpLeg/Character1_RightLeg");
-            //    Quaternion r25 = Quaternion.identity;
-            //    r25.eulerAngles = new Vector3(-90, -90, 0);
-            //    KneeRight.transform.localRotation = r * r25;
-            //}
-            //else if (i == 24)
-            //{
-            //    GameObject AnkleRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_RightUpLeg/Character1_RightLeg/Character1_RightFoot");
-            //    Quaternion r26 = Quaternion.identity;
-            //    r26.eulerAngles = new Vector3(-90, -90, 0);
-            //    AnkleRight.transform.localRotation = r * r26;
-            //}
-            //else if (i == 25)
-            //{
-            //    GameObject FootRight = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_RightUpLeg/Character1_RightLeg/Character1_RightFoot/Character1_RightToeBase");
-            //    Quaternion r27 = Quaternion.identity;
-            //    r27.eulerAngles = new Vector3(-90, -90, 0);
-            //    FootRight.transform.localRotation = r * r27;
-            //}
-            else if (i == 26)
-            {
-                GameObject Head = GameObject.Find("Avatar1/Character1_Reference/Character1_Hips/Character1_Spine/Character1_Spine1/Character1_Spine2/Character1_Neck/Character1_Head");
-                Quaternion r28 = Quaternion.identity;
-                r28.eulerAngles = new Vector3(90, -90, 0) - neckAngle.eulerAngles;
-                Head.transform.localRotation = r * r28;
-            }
         }
         realSkeleton.lastUpdateTime = Time.time;
         realSkeleton.lastPosition = new Vector3 (skeletonData.GetJoint(0).Position.X, skeletonData.GetJoint(0).Position.Y, skeletonData.GetJoint(0).Position.Z);
+
+        UpdateColour(realSkeleton);
+        UpdateSize(realSkeleton, true);
+    }
+
+    void ApplyExtraJointDataToSkeleton(Skeleton skeletonData, SkeletonGameObject realSkeleton, SkeletonGameObject baseSkeleton)
+    {
+        // Do joint moves
+
+        var prevJoint = skeletonData.GetJoint(0);
+        int prevJointInd = 0;
+        var nextJoint = skeletonData.GetJoint(0);
+        int nextJointInd = 0;
+
+        for (var i = 0; i < realSkeleton.children.Length; i++)
+        {
+            var joint = realSkeleton.children[i];
+            string[] jointNames = joint.name.Split('-');
+            jointNames[1] = jointNames[1].Substring(0, jointNames[1].Length - 1);
+
+            for (var j = 0; j < (int)JointId.Count; j++)
+            {
+                if (System.Enum.ToObject(typeof(JointId), j).ToString() == jointNames[0])
+                {
+                    prevJoint = skeletonData.GetJoint(j);
+                    prevJointInd = j;
+                }
+                if (System.Enum.ToObject(typeof(JointId), j).ToString() == jointNames[1])
+                {
+                    nextJoint = skeletonData.GetJoint(j);
+                    nextJointInd = j;
+                }
+            }
+
+            int count = 1;
+            for (var j = 0; j < realSkeleton.children.Length; j++)
+            {
+                if (realSkeleton.children[j].name.Contains(baseSkeleton.children[prevJointInd].name) && realSkeleton.children[j].name.Contains(baseSkeleton.children[nextJointInd].name))
+                {
+                    count++;
+                }
+            }
+
+            var pos = prevJoint.Position + (nextJoint.Position - prevJoint.Position) * Int32.Parse(joint.name[joint.name.Length - 1].ToString()) / (count);
+            var rot = prevJoint.Quaternion;
+            var v = new Vector3(pos.X, -pos.Y, pos.Z) * 0.001f;
+            var r = new Quaternion(rot.X, rot.Y, rot.Z, rot.W);
+            realSkeleton.children[i].transform.localPosition = v;
+            realSkeleton.children[i].transform.localRotation = r;
+        }
+        realSkeleton.lastUpdateTime = Time.time;
+        realSkeleton.lastPosition = new Vector3(skeletonData.GetJoint(0).Position.X, skeletonData.GetJoint(0).Position.Y, skeletonData.GetJoint(0).Position.Z);
     }
 
     void CreateDebugSkeletons (string rootName) {
@@ -293,6 +163,7 @@ public class KinectSkeleton : MonoBehaviour {
         GameObject skeletonRoot = new GameObject (rootName);
         for (int joint = 0; joint < (int)JointId.Count; joint++) {
             var cube = GameObject.CreatePrimitive (PrimitiveType.Cube);
+            cube.transform.localScale = new Vector3(1f, 1f, 1f);
             cube.name = System.Enum.ToObject(typeof(JointId), joint).ToString();
             cube.transform.localPosition = Vector3.zero;
             cube.transform.localScale = Vector3.one * 0.05f;
@@ -306,4 +177,285 @@ public class KinectSkeleton : MonoBehaviour {
         skeletons.Add (newSkeleton);
         print ("created a skeleton " + skeletonRoot.name);
     }
-}
+
+    void CreateExtraSkeletons (string rootName)
+    {
+        SkeletonGameObject newSkeleton = new SkeletonGameObject();
+        //GameObject[] joints = new GameObject[(int)JointId.Count];
+        GameObject[] joints = new GameObject[65];
+        GameObject skeletonRoot = new GameObject(rootName);
+        for (int joint = 0; joint < joints.Length; joint++)
+        {
+            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            if (joint == 0)
+            {
+                cube.name = "Pelvis-SpineNavel1";
+            }
+            else if (joint == 1)
+            {
+                cube.name = "Pelvis-SpineNavel2";
+            }
+            else if (joint == 2)
+            {
+                cube.name = "SpineNavel-SpineChest1";
+            }
+            else if (joint == 3)
+            {
+                cube.name = "SpineChest-Neck1";
+            }
+            else if (joint == 4)
+            {
+                cube.name = "SpineChest-Neck2";
+            }
+            else if (joint == 5)
+            {
+                cube.name = "Neck-ClavicleLeft1";
+            }
+            else if (joint == 6)
+            {
+                cube.name = "ClavicleLeft-ShoulderLeft1";
+            }
+            else if (joint == 7)
+            {
+                cube.name = "ShoulderLeft-ElbowLeft1";
+            }
+            else if (joint == 8)
+            {
+                cube.name = "ShoulderLeft-ElbowLeft2";
+            }
+            else if (joint == 9)
+            {
+                cube.name = "ShoulderLeft-ElbowLeft3";
+            }
+            else if (joint == 10)
+            {
+                cube.name = "ElbowLeft-WristLeft1";
+            }
+            else if (joint == 11)
+            {
+                cube.name = "ElbowLeft-WristLeft2";
+            }
+            else if (joint == 12)
+            {
+                cube.name = "WristLeft-HandLeft1";
+            }
+            else if (joint == 13)
+            {
+                cube.name = "HandLeft-HandTipLeft1";
+            }
+            else if (joint == 14)
+            {
+                cube.name = "HandLeft-ThumbLeft1";
+            }
+            else if (joint == 15)
+            {
+                cube.name = "Neck-ClavicleRight1";
+            }
+            else if (joint == 16)
+            {
+                cube.name = "ClavicleRight-ShoulderRight1";
+            }
+            else if (joint == 17)
+            {
+                cube.name = "ShoulderRight-ElbowRight1";
+            }
+            else if (joint == 18)
+            {
+                cube.name = "ShoulderRight-ElbowRight2";
+            }
+            else if (joint == 19)
+            {
+                cube.name = "ShoulderRight-ElbowRight3";
+            }
+            else if (joint == 20)
+            {
+                cube.name = "ElbowRight-WristRight1";
+            }
+            else if (joint == 21)
+            {
+                cube.name = "ElbowRight-WristRight2";
+            }
+            else if (joint == 22)
+            {
+                cube.name = "WristRight-HandRight1";
+            }
+            else if (joint == 23)
+            {
+                cube.name = "HandRight-HandTipRight1";
+            }
+            else if (joint == 24)
+            {
+                cube.name = "HandRight-ThumbRight1";
+            }
+            else if (joint == 25)
+            {
+                cube.name = "Pelvis-HipLeft1";
+            }
+            else if (joint == 26)
+            {
+                cube.name = "HipLeft-KneeLeft1";
+            }
+            else if (joint == 27)
+            {
+                cube.name = "HipLeft-KneeLeft2";
+            }
+            else if (joint == 28)
+            {
+                cube.name = "HipLeft-KneeLeft3";
+            }
+            else if (joint == 29)
+            {
+                cube.name = "KneeLeft-AnkleLeft1";
+            }
+            else if (joint == 30)
+            {
+                cube.name = "KneeLeft-AnkleLeft2";
+            }
+            else if (joint == 31)
+            {
+                cube.name = "AnkleLeft-FootLeft1";
+            }
+            else if (joint == 32)
+            {
+                cube.name = "Pelvis-HipRight1";
+            }
+            else if (joint == 33)
+            {
+                cube.name = "HipRight-KneeRight1";
+            }
+            else if (joint == 34)
+            {
+                cube.name = "HipRight-KneeRight2";
+            }
+            else if (joint == 35)
+            {
+                cube.name = "HipRight-KneeRight3";
+            }
+            else if (joint == 36)
+            {
+                cube.name = "KneeRight-AnkleRight1";
+            }
+            else if (joint == 37)
+            {
+                cube.name = "KneeRight-AnkleRight2";
+            }
+            else if (joint == 38)
+            {
+                cube.name = "AnkleRight-FootRight1";
+            }
+            else if (joint == 39)
+            {
+                cube.name = "Neck-Head1";
+            }
+            else if (joint == 40)
+            {
+                cube.name = "Head-Nose1";
+            }
+            else if (joint == 41)
+            {
+                cube.name = "Head-EyeLeft1";
+            }
+            else if (joint == 42)
+            {
+                cube.name = "Head-EarLeft1";
+            }
+            else if (joint == 43)
+            {
+                cube.name = "Head-EyeRight1";
+            }
+            else if (joint == 44)
+            {
+                cube.name = "Head-EarRight1";
+            }
+            else if (joint == 45)
+            {
+                cube.name = "EarLeft-EarRight1";
+            }
+            else if (joint == 46)
+            {
+                cube.name = "EarLeft-EarRight2";
+            }
+            else if (joint == 47)
+            {
+                cube.name = "EarLeft-EyeRight1";
+            }
+            else if (joint == 48)
+            {
+                cube.name = "EarRight-EyeLeft1";
+            }
+            else if (joint == 49)
+            {
+                cube.name = "ClavicleLeft-SpineChest1";
+            }
+            else if (joint == 50)
+            {
+                cube.name = "ClavicleLeft-SpineChest2";
+            }
+            else if (joint == 51)
+            {
+                cube.name = "ClavicleRight-SpineChest1";
+            }
+            else if (joint == 52)
+            {
+                cube.name = "ClavicleRight-SpineChest2";
+            }
+            else if (joint == 53)
+            {
+                cube.name = "ShoulderLeft-SpineNavel1";
+            }
+            else if (joint == 54)
+            {
+                cube.name = "ShoulderLeft-SpineNavel2";
+            }
+            else if (joint == 55)
+            {
+                cube.name = "ShoulderLeft-SpineNavel3";
+            }
+            else if (joint == 56)
+            {
+                cube.name = "ShoulderRight-SpineNavel1";
+            }
+            else if (joint == 57)
+            {
+                cube.name = "ShoulderRight-SpineNavel2";
+            }
+            else if (joint == 58)
+            {
+                cube.name = "ShoulderRight-SpineNavel3";
+            }
+            else if (joint == 59)
+            {
+                cube.name = "ShoulderLeft-SpineChest1";
+            }
+            else if (joint == 60)
+            {
+                cube.name = "ShoulderRight-SpineChest1";
+            }
+            else if (joint == 61)
+            {
+                cube.name = "HipLeft-SpineNavel1";
+            }
+            else if (joint == 62)
+            {
+                cube.name = "HipLeft-SpineNavel2";
+            }
+            else if (joint == 63)
+            {
+                cube.name = "HipRight-SpineNavel1";
+            }
+            else if (joint == 64)
+            {
+                cube.name = "HipRight-SpineNavel2";
+            }
+            cube.transform.localPosition = Vector3.zero;
+            cube.transform.localScale = Vector3.one * 0.05f;
+            cube.transform.parent = skeletonRoot.transform;
+            joints[joint] = cube;
+        }
+        newSkeleton.root = skeletonRoot;
+        newSkeleton.children = joints;
+        newSkeleton.lastUpdateTime = Time.time;
+
+        skeletons.Add(newSkeleton);
+        print("created a skeleton " + skeletonRoot.name);
+    }
