@@ -105,7 +105,6 @@ public class KinectSkeleton : MonoBehaviour {
         realSkeleton.lastPosition = new Vector3 (skeletonData.GetJoint(0).Position.X, skeletonData.GetJoint(0).Position.Y, skeletonData.GetJoint(0).Position.Z);
 
         UpdateColour(realSkeleton);
-        UpdateSize(realSkeleton, true);
     }
 
     void ApplyExtraJointDataToSkeleton(Skeleton skeletonData, SkeletonGameObject realSkeleton, SkeletonGameObject baseSkeleton)
@@ -459,3 +458,17 @@ public class KinectSkeleton : MonoBehaviour {
         skeletons.Add(newSkeleton);
         print("created a skeleton " + skeletonRoot.name);
     }
+    void UpdateColour(SkeletonGameObject realSkeleton)
+    {
+        foreach (GameObject gameObj in realSkeleton.children)
+        {
+            Color ArchColor = new Color(AudioAnalysis.Instance._bassColour.r - (AudioAnalysis.Instance._bassColour.r - AudioAnalysis.Instance._highsColour.r) * (20 + 1) / AudioAnalysis.bandnumber, AudioAnalysis.Instance._bassColour.g - (AudioAnalysis.Instance._bassColour.g - AudioAnalysis.Instance._highsColour.g) * (20 + 1) / AudioAnalysis.bandnumber, AudioAnalysis.Instance._bassColour.b - (AudioAnalysis.Instance._bassColour.b - AudioAnalysis.Instance._highsColour.b) * (20 + 1) / AudioAnalysis.bandnumber);
+            Color nextArchColor = new Color(AudioAnalysis.Instance._nextbassColour.r - (AudioAnalysis.Instance._nextbassColour.r - AudioAnalysis.Instance._nexthighsColour.r) * (20 + 1) / AudioAnalysis.bandnumber, AudioAnalysis.Instance._nextbassColour.g - (AudioAnalysis.Instance._nextbassColour.g - AudioAnalysis.Instance._nexthighsColour.g) * (20 + 1) / AudioAnalysis.bandnumber, AudioAnalysis.Instance._nextbassColour.b - (AudioAnalysis.Instance._nextbassColour.b - AudioAnalysis.Instance._nexthighsColour.b) * (20 + 1) / AudioAnalysis.bandnumber);
+            Color newArchColor = new Color(ArchColor.r - (ArchColor.r - nextArchColor.r) * AudioAnalysis.Instance.time / 60, ArchColor.g - (ArchColor.g - nextArchColor.g) * AudioAnalysis.Instance.time / 60, ArchColor.b - (ArchColor.b - nextArchColor.b) * AudioAnalysis.Instance.time / 60);
+
+            gameObj.GetComponent<Renderer>().material.color = newArchColor * 3f;
+            gameObj.GetComponent<Renderer>().material.SetFloat("_Metallic", 1f);
+            gameObj.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1f);
+        }
+    }
+}
