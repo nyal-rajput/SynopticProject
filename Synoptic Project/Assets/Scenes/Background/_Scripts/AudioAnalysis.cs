@@ -9,10 +9,10 @@ public class AudioAnalysis : MonoBehaviour
 {
     public float time;
 
-    public Color _bassColour;
-    public Color _highsColour;
-    public Color _nextbassColour;
-    public Color _nexthighsColour;
+    public Color _LowFrequencyColour;
+    public Color _HighFrequencyColour;
+    public Color _NextLowFrequencyColour;
+    public Color _NextHighFrequencyColour;
     public static Color nextColour;
 
     AudioSource _audioSource;
@@ -56,7 +56,7 @@ public class AudioAnalysis : MonoBehaviour
     public static AudioAnalysis Instance;
 
     public float sigmoidfunct (float y, float a) {
-        return 1.0f / (1.0f + (float) Math.Exp(- (9 / a) * (y - a / 2)));
+        return 1.0f / (1.0f + (float) Math.Exp(- (8 / a) * (y - a / 2)));
     }
     
     void Awake(){
@@ -196,9 +196,8 @@ public class AudioAnalysis : MonoBehaviour
             if (_freqLeftBand[i] > _freqLeftBandHighest[i]) {
                 _freqLeftBandHighest[i] = _freqLeftBand[i];
             }
-            // _audioLeftBand[i] = _freqLeftBand[i] / _freqLeftBandHighest[i];
-            // _audioLeftBandBuffer[i] = sigmoidfunct(_bandLeftbuffer[i], _freqLeftBandHighest[i]);
             _audioLeftBand[i] = sigmoidfunct(_freqLeftBand[i], _freqLeftBandHighest[i]);
+            //_audioLeftBand[i] = _freqLeftBand[i];
         }
     }
 
@@ -207,9 +206,8 @@ public class AudioAnalysis : MonoBehaviour
             if (_freqRightBand[i] > _freqRightBandHighest[i]) {
                 _freqRightBandHighest[i] = _freqRightBand[i];
             }
-            // _audioRightBand[i] = _freqRightBand[i] / _freqRightBandHighest[i];
-            // _audioRightBandBuffer[i] = sigmoidfunct(_bandRightbuffer[i], _freqRightBandHighest[i]);
             _audioRightBand[i] = sigmoidfunct(_freqRightBand[i], _freqRightBandHighest[i]);
+            // _audioRightBand[i] = _freqRightBand[i];
 
         }
     }
@@ -273,59 +271,59 @@ public class AudioAnalysis : MonoBehaviour
     } 
 
     void UpdateColour() {
-        if (_bassColour.r == 1 && _bassColour.g <= 0.01 && _bassColour.b == 0) {
-            _bassColour = new Color (1, 0, 0);
-            _nextbassColour = new Color (1, 0, 1);
+        if (_LowFrequencyColour.r == 1 && _LowFrequencyColour.g <= 0.01 && _LowFrequencyColour.b == 0) {
+            _LowFrequencyColour = new Color (1, 0, 0);
+            _NextLowFrequencyColour = new Color (1, 0, 1);
         }
-        else if (_bassColour.r == 1 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
-            _bassColour = new Color (1, 0, 1);
-            _nextbassColour = new Color (0, 1, 1);
+        else if (_LowFrequencyColour.r == 1 && _LowFrequencyColour.g <= 0.01 && _LowFrequencyColour.b == 1) {
+            _LowFrequencyColour = new Color (1, 0, 1);
+            _NextLowFrequencyColour = new Color (0, 1, 1);
         }
-        // else if (_bassColour.r <= 0.01 && _bassColour.g <= 0.01 && _bassColour.b == 1) {
-        //     _bassColour = new Color (0, 0, 1);
-        //     _nextbassColour = new Color (0, 1, 1);
+        // else if (_LowFrequencyColour.r <= 0.01 && _LowFrequencyColour.g <= 0.01 && _LowFrequencyColour.b == 1) {
+        //     _LowFrequencyColour = new Color (0, 0, 1);
+        //     _NextLowFrequencyColour = new Color (0, 1, 1);
         // }       
-        else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b == 1) {
-            _bassColour = new Color (0, 1, 1);
-            _nextbassColour = new Color (1, 1, 0);
+        else if (_LowFrequencyColour.r <= 0.01 && _LowFrequencyColour.g == 1 && _LowFrequencyColour.b == 1) {
+            _LowFrequencyColour = new Color (0, 1, 1);
+            _NextLowFrequencyColour = new Color (1, 1, 0);
         }   
-        // else if (_bassColour.r <= 0.01 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
-        //     _bassColour = new Color (0, 1, 0);
-        //     _nextbassColour = new Color (1, 1, 0);
+        // else if (_LowFrequencyColour.r <= 0.01 && _LowFrequencyColour.g == 1 && _LowFrequencyColour.b <= 0.01) {
+        //     _LowFrequencyColour = new Color (0, 1, 0);
+        //     _NextLowFrequencyColour = new Color (1, 1, 0);
         // }   
-        else if (_bassColour.r == 1 && _bassColour.g == 1 && _bassColour.b <= 0.01) {
-            _bassColour = new Color (1, 1, 0);
-            _nextbassColour = new Color (1, 0, 0);
+        else if (_LowFrequencyColour.r == 1 && _LowFrequencyColour.g == 1 && _LowFrequencyColour.b <= 0.01) {
+            _LowFrequencyColour = new Color (1, 1, 0);
+            _NextLowFrequencyColour = new Color (1, 0, 0);
         }   
 
-        if (_highsColour.r == 1 && _highsColour.g <= 0.01 && _highsColour.b <= 0.01) {
-            _highsColour = new Color (1, 0, 0);
-            _nexthighsColour = new Color (1, 0, 1);
+        if (_HighFrequencyColour.r == 1 && _HighFrequencyColour.g <= 0.01 && _HighFrequencyColour.b <= 0.01) {
+            _HighFrequencyColour = new Color (1, 0, 0);
+            _NextHighFrequencyColour = new Color (1, 0, 1);
         }
-        else if (_highsColour.r == 1 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
-            _highsColour = new Color (1, 0, 1);
-            _nexthighsColour = new Color (0, 1, 1);
+        else if (_HighFrequencyColour.r == 1 && _HighFrequencyColour.g <= 0.01 && _HighFrequencyColour.b == 1) {
+            _HighFrequencyColour = new Color (1, 0, 1);
+            _NextHighFrequencyColour = new Color (0, 1, 1);
         }
-        // else if (_highsColour.r <= 0.01 && _highsColour.g <= 0.01 && _highsColour.b == 1) {
-        //     _highsColour = new Color (0, 0, 1);
-        //     _nexthighsColour = new Color (0, 1, 1);
+        // else if (_HighFrequencyColour.r <= 0.01 && _HighFrequencyColour.g <= 0.01 && _HighFrequencyColour.b == 1) {
+        //     _HighFrequencyColour = new Color (0, 0, 1);
+        //     _NextHighFrequencyColour = new Color (0, 1, 1);
         // }       
-        else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b == 1) {
-            _highsColour = new Color (0, 1, 1);
-            _nexthighsColour = new Color (1, 1, 0);
+        else if (_HighFrequencyColour.r <= 0.01 && _HighFrequencyColour.g == 1 && _HighFrequencyColour.b == 1) {
+            _HighFrequencyColour = new Color (0, 1, 1);
+            _NextHighFrequencyColour = new Color (1, 1, 0);
         }   
-        // else if (_highsColour.r <= 0.01 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
-        //     _highsColour = new Color (0, 1, 0);
-        //     _nexthighsColour = new Color (1, 1, 0);
+        // else if (_HighFrequencyColour.r <= 0.01 && _HighFrequencyColour.g == 1 && _HighFrequencyColour.b <= 0.01) {
+        //     _HighFrequencyColour = new Color (0, 1, 0);
+        //     _NextHighFrequencyColour = new Color (1, 1, 0);
         // }   
-        else if (_highsColour.r == 1 && _highsColour.g == 1 && _highsColour.b <= 0.01) {
-            _highsColour = new Color (1, 1, 0);
-            _nexthighsColour = new Color (1, 0, 0);
+        else if (_HighFrequencyColour.r == 1 && _HighFrequencyColour.g == 1 && _HighFrequencyColour.b <= 0.01) {
+            _HighFrequencyColour = new Color (1, 1, 0);
+            _NextHighFrequencyColour = new Color (1, 0, 0);
         }   
 
         if (time > 60) {
-            _bassColour = _nextbassColour;
-            _highsColour = _nexthighsColour;
+            _LowFrequencyColour = _NextLowFrequencyColour;
+            _HighFrequencyColour = _NextHighFrequencyColour;
             time = 0;
         }
     }

@@ -105,6 +105,7 @@ public class KinectSkeleton : MonoBehaviour {
         realSkeleton.lastPosition = new Vector3 (skeletonData.GetJoint(0).Position.X, skeletonData.GetJoint(0).Position.Y, skeletonData.GetJoint(0).Position.Z);
 
         UpdateColour(realSkeleton);
+        UpdateSize(realSkeleton, false);
     }
 
     void ApplyExtraJointDataToSkeleton(Skeleton skeletonData, SkeletonGameObject realSkeleton, SkeletonGameObject baseSkeleton)
@@ -469,6 +470,21 @@ public class KinectSkeleton : MonoBehaviour {
             gameObj.GetComponent<Renderer>().material.color = newArchColor * 3f;
             gameObj.GetComponent<Renderer>().material.SetFloat("_Metallic", 1f);
             gameObj.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1f);
+        }
+    }
+    void UpdateSize(SkeletonGameObject realSkeleton, bool baseSkel)
+    {
+        foreach (GameObject gameObj in realSkeleton.children)
+        {
+            if (baseSkel)
+            {
+                gameObj.transform.localScale = new Vector3(0.05f + ((AudioAnalysis._LeftAmplitude + AudioAnalysis._RightAmplitude) / 80f), 0.05f + ((AudioAnalysis._LeftAmplitude + AudioAnalysis._RightAmplitude) / 80f), 0.05f + ((AudioAnalysis._LeftAmplitude + AudioAnalysis._RightAmplitude) / 80f));
+            }
+            else
+            {
+                gameObj.transform.localScale = new Vector3(0.04f + ((AudioAnalysis._LeftAmplitude + AudioAnalysis._RightAmplitude) / 80f), 0.04f + ((AudioAnalysis._LeftAmplitude + AudioAnalysis._RightAmplitude) / 80f), 0.04f + ((AudioAnalysis._LeftAmplitude + AudioAnalysis._RightAmplitude) / 80f));
+
+            }
         }
     }
 }
