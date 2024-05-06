@@ -73,7 +73,8 @@ public class AudioAnalysis : MonoBehaviour
         _bandLeftbuffer = new float[bandnumber];
         _bufferLeftDecrease = new float[bandnumber];
 
-        _freqLeftBandHighest = new float[] {5f, 10f, 30f, 25f, 15f, 15f, 25f, 25f, 35f, 35f, 45f, 55f, 45f, 55f, 65f, 75f, 75f, 75f, 75f, 45f, 5f};
+        //_freqLeftBandHighest = new float[] {5f, 10f, 30f, 25f, 15f, 15f, 25f, 25f, 35f, 35f, 45f, 55f, 45f, 55f, 65f, 75f, 75f, 75f, 75f, 45f, 5f};
+        _freqLeftBandHighest = new float[] {1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f};
         _audioLeftBand = new float[bandnumber];
         _audioLeftBandBuffer = new float[bandnumber];
 
@@ -81,7 +82,8 @@ public class AudioAnalysis : MonoBehaviour
         _bandRightbuffer = new float[bandnumber];
         _bufferRightDecrease = new float[bandnumber];
 
-        _freqRightBandHighest = new float[] {5f, 10f, 30f, 25f, 15f, 15f, 25f, 25f, 35f, 35f, 45f, 55f, 45f, 55f, 65f, 75f, 75f, 75f, 75f, 45f, 5f};
+        //_freqRightBandHighest = new float[] {5f, 10f, 30f, 25f, 15f, 15f, 25f, 25f, 35f, 35f, 45f, 55f, 45f, 55f, 65f, 75f, 75f, 75f, 75f, 45f, 5f};
+        _freqRightBandHighest = new float[] {1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f};
         _audioRightBand = new float[bandnumber];
         _audioRightBandBuffer = new float[bandnumber];
 
@@ -112,7 +114,7 @@ public class AudioAnalysis : MonoBehaviour
         
         if (_liveaudio) {
             if (Microphone.devices.Length > 0) {
-                _audiodevice = Microphone.devices[0].ToString();
+                _audiodevice = Microphone.devices[2].ToString();
                 _audioSource.clip = Microphone.Start(_audiodevice, true, 100, 22050);
             }
             else {
